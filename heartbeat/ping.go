@@ -1,4 +1,4 @@
-package utils
+package heartbeat
 
 import (
     "context"
@@ -13,7 +13,7 @@ func Pinger(ctx context.Context, w io.Writer, reset <-chan time.Duration) {
     select {
     case <-ctx.Done():
         return
-        case interval = <-reset: // pulled initial interval off reset channel
+    case interval = <-reset: // pulled initial interval off reset channel
     default:
     }
     if interval <= 0 {
@@ -31,7 +31,7 @@ func Pinger(ctx context.Context, w io.Writer, reset <-chan time.Duration) {
         select {
         case <-ctx.Done():
             return
-        case newInterval = <-reset:
+        case newInterval := <-reset:
             if !timer.Stop() {
                 <-timer.C
             }
