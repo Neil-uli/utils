@@ -92,4 +92,6 @@ func (m String) WriteTo(w io.Writer) (int64, error) {
     o, err := w.Write([]byte(m)) // payload
     return n + int64(o), err
 }
-func (m String) ReadFrom(r io.Reader) (int64, error) {}
+func (m String) ReadFrom(r io.Reader) (int64, error) {
+    err :=
+}
