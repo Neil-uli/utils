@@ -33,7 +33,7 @@ func (m Binary) WriteTo(w io.Writer) (int64, error) {
     if err != nil {
         return 0, err
     }
-    
+
     var n int64 = 1
 
     err = binary.Write(w, binary.BigEndian, uint32(len(m))) // 4-byte size
@@ -92,6 +92,55 @@ func (m String) WriteTo(w io.Writer) (int64, error) {
     o, err := w.Write([]byte(m)) // payload
     return n + int64(o), err
 }
-func (m String) ReadFrom(r io.Reader) (int64, error) {
-    err :=
+func (m *String) ReadFrom(r io.Reader) (int64, error) {
+    var typ uint8
+    err := binary.Read(r, binary.BigEndian, &typ) // 1-byte size
+    if err != nil {
+        return 0, err
+    }
+    var n int64 = 1
+    if typ != StringType {
+        return n, errors.New("invalid String")
+    }
+
+    var size uint32
+    err = binary.Read(r, binary.BigEndian, &size) // 4 byte size
+    if err != nil {
+        return n, err
+    }
+    n += 4
+
+    buf := make([]byte, size)
+    o, err := r.Read(buf) // payload
+    if err != nil {
+        return n, err
+    }
+    *m = String(buf)
+
+    return n + int64(o), nil
 }
+
+func decode(r io.Reader) (Payload, error) {
+    var typ uint8
+    err := binary.Read(r, binary.LittleEndian, &typ)
+    if err != nil {
+        return nil, err
+    }
+    var payload Payload
+
+    switch typ {
+    case BinaryType:
+        payload = new(Binary)
+    case StringType:
+        payload = new(String)
+
+    default:
+        return nil, errors.New("inknown type")
+    }
+
+    _, err = payload.ReadFrom(io.MultiReader(bytes.NewReader([]byte{typ}), r))
+    if err != nil {
+        return nil, err
+    }
+    return payload, nil
+}    
