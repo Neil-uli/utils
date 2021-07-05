@@ -65,4 +65,39 @@ func TestProxy(t *testing.T) {
             }(conn)
         }
     }()
+    // proxyServer proxies messages from client connections to the destinationServer. Replies
+    // from the destinationServer are proxied back to the clients
+    proxyServer, err := net.Listen("tcp", "127.0.0.1:")
+    if err != nil {
+        t.Fatal(err)
+    }
+    wg.Add(1)
+
+    go func() {
+        defer wg.Done()
+
+        for {
+            conn, err := proxyServer.Accept()
+            if err != nil {
+                return
+            }
+
+            go func(from net.Conn) {
+                defer from.Close()
+                to, err := net.Dial("tcp", server.Addr().String())
+                if err != nil {
+                    t.Error(err)
+                    return
+                }
+                defer to.Close()
+
+                err = proxy(from, to)
+                if err != nil && err != io.EOF {
+                    t.Error(err)
+                }
+            }(conn)
+        }
+    }()
 }
+
+
