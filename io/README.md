@@ -8,3 +8,9 @@ to keep you from doing so.
 - io.Copy
 - io.MultiWriter
 - io.TeeReader
+
+### Monitoring a Network Connection
+The io package includes useful tools that allow you to do more with network data than just send 
+and receive it using connections objects. For example, you could use io.MultiWriter to write a 
+single payload to mutliple network connections. You could use io.TeeReader to log data read from 
+a network connection.
