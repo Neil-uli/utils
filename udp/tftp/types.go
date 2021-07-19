@@ -34,3 +34,28 @@ const (
     ErrFileExists
     ErrNoUser
 )
+
+
+type ReadReq struct {
+    Filename string
+    Mode string
+}
+
+// Although not used by our server, a client would make use of this method
+func (q ReadReq) MarshalBinary() ([]byte, error) {
+    mode := "octet"
+    if q.Mode != "" {
+        mode = q.Mode
+    }
+
+    // operation code + filename + 0 byte + mode + 0 byte
+    cap := 2 + 2 + len(q.Filename) + 1 + len(q.Mode) + 1
+
+    b := new(bytes.Buffer)
+    b.Grow(cap)
+
+    err := binary.Write(b, binary.BigEndian, OpRRQ) // write operation code
+    if err != nil {
+        return nil, err
+    }
+}
