@@ -58,4 +58,18 @@ func (q ReadReq) MarshalBinary() ([]byte, error) {
     if err != nil {
         return nil, err
     }
+    _, err = b.WriteString(q.Filename) // write filename
+    if err != nil {
+        return nil, err
+    }
+
+    err = b.WriteByte(0) 
+    if err != nil { return nil, err }
+
+    _, err = b.WriteString(mode)
+    if err != nil {
+        return nil, err
+    }
+
+    return b.Bytes(), nil
 }
