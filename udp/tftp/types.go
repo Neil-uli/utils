@@ -73,3 +73,36 @@ func (q ReadReq) MarshalBinary() ([]byte, error) {
 
     return b.Bytes(), nil
 }
+
+func (q *ReadReq) UnmarshalBinary(p []byte) error {
+    r := bytes.NewBuffer(p)
+    var code OpCode
+    err := binary.Read(r, binary.BigEndian, &code) // read operation code
+    if err != nil {
+        return err
+    }
+    if code != OpRRQ {
+        return errors.New("invalid RRQ")
+    }
+    q.Filename, err = r.ReadString(0) // read filename
+    if err != nil {
+        return errors.New("invalid RRQ")
+    }
+    q.Filename = strings.TrimRight(q.Filename, "\x00") // remove the 0-byte
+    if len(q.Filename) == 0 {
+        return errors.New("invalid RRQ")
+    }
+    q.Mode, err = r.ReadString(0) // read mode
+    if err != nil {
+        return errors.New("invalid RRQ")
+    }
+    q.Mode = strings.TrimRight(q.Mode, "\x00") // remove the 0-byte
+    if len(q.Mode) == 0 {
+        return errors.New("invalid RRQ")
+    }
+    actual := strings.ToLower(q.Mode) // enforce octet mode
+    if actual != "octet" {
+        return errors.New("only binary transfers supported")
+    }
+    return nil
+}
