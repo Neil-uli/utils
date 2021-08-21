@@ -193,4 +193,53 @@ func (a *Ack) UnmarshalBinary(p []byte) error {
     return binary.Read(r, binary.BigEndian, a) // read block number
 }
 
+type Err struct {
+    Error ErrCode
+    Message string
+}
+
+func (e Err) MarshalBinary() ([]byte, error) {
+    cap := 2 + 2 + len(e.Message) + 1 // opCode + errCode + message + 0 byte
+
+    b := new(bytes.Buffer)
+    b.Grow(cap)
+
+    err := binary.Write(b, binary.BigEndian, OpErr)
+    if err != nil {
+        return nil, err 
+    }
+
+    err = binary.Write(b, binary.BigEndian, e.Error)
+    if err != nil {
+        return nil, err
+    }
+
+    _, err = b.WriteString(e.Message)
+    if err != nil { return nil, err }
+
+    err = b.WriteByte(0) 
+    if err != nil { return nil, err }
+
+    return b.Bytes(), nil
+}
+
+func (e *Err) UnmarshalBinary(p []byte) error {
+    r := bytes.NewBuffer(p)
+
+    var code OpCode
+
+    err := binary.Read(r, binary.BigEndian, &code) 
+    if err != nil { return err }
+
+    if code != OpErr {
+        return errors.New("invalid ERROR")
+    }
+
+    err = binary.Read(r, binary.BigEndian, &e.Error) 
+    if err != nil { return err }
+
+    e.Message, err = r.ReadString(0)
+    e.Message = strings.TrimRight(e.Message, "\x00") // remove the 0-byte
+    return err
+}
 
