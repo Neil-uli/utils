@@ -14,7 +14,7 @@ const (
     BlockSize = DatagramSize - 4 // 4-byte header, 2 of them is an operation code 
 )
 
-type OpCode uint64
+type OpCode uint16
 
 const (
     OpRRQ OpCode = iota + 1 // Read request
@@ -129,6 +129,7 @@ func (d *Data) MarshalBinary() ([]byte, error) {
     err = binary.Write(b,binary.BigEndian, d.Block) 
     if err != nil { return nil, err }
 
+    // write up to BlockSize worth of bytes
     _, err = io.CopyN(b, d.Payload, BlockSize)
     if err != nil && err != io.EOF {
         return nil, err 
@@ -142,7 +143,7 @@ func (d *Data) UnmarshalBinary(p []byte) error {
         return errors.New("invalid DATA")
     }
 
-    var opcode
+    var opcode OpCode
 
     err := binary.Read(bytes.NewReader(p[:2]), binary.BigEndian, &opcode)
     if err != nil || opcode != OpData {
