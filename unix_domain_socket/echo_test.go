@@ -59,3 +59,28 @@ func TestEchoServer(t *testing.T) {
         t.Fatalf("expected reply %q; actual reply %q", expected, buf[:n])
     }
 }
+
+func TestEchoServerUnixPackets(t *testing.T) { 
+    dir, err := ioutil.TempDir("", "echo_unixpacket")
+    if err != nil {
+        t.Fatal(err)
+    }
+    defer func() {
+        if eErr := os.RemoveAll(dir); eErr != nil {
+            t.Error(eErr) 
+        }
+    }()
+
+    ctx, cancel := context.WithCancel(context.Background())
+    socket := filepath.Join(dir, fmt.Sprintf("%d.sock", os.Getpid()))
+    rAddr, err := streamingEchoServer(ctx, "unixpacket", socket)
+    if err != nil {
+        t.Fatal(err)
+    }
+    defer cancel()
+
+    err = os.Chmod(socket, os.ModeSocket|0666)
+    if err != nil {
+        t.Fatal(err)
+    }
+}
