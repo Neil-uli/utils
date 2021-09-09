@@ -13,5 +13,5 @@ In other terminal use a TFTP client
 tftp 
 connect 127.0.0.1
 binary
-get file.jpeg
+get file.jpegaa
 ```

@@ -83,4 +83,8 @@ func TestEchoServerUnixPackets(t *testing.T) {
     if err != nil {
         t.Fatal(err)
     }
+    conn, err := net.Dial("unixpacket", rAddr.String())
+    if err != nil {
+        t.Fatal(err)
+    }
 }
