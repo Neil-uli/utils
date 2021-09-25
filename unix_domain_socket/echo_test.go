@@ -11,6 +11,9 @@ import (
     "testing"
 )
 
+// The streaming Unix domain socket works like TCP without the overhead assoiciated with TCP's
+// acknowledgments, checksums, flow control, and so on. The operating system is responsible for
+// implementing the streaming inter-process communication over Unix domain socket in lieu of TCP.
 func TestEchoServer(t *testing.T) {
     dir, err := ioutil.TempDir("", "echo_unix")
     if err != nil {
@@ -60,6 +63,9 @@ func TestEchoServer(t *testing.T) {
     }
 }
 
+// This echo server will comunicate using datagram based network types, such as udp and unixgram.
+// Whether you're communicating over UDP or a unixgram socket, the server you'll write looks
+// essentially the same. The difference is, you will need to clean up the socket file with a unixgram listener.
 func TestEchoServerUnixDatagram(t *testing.T) {
     dir, err := ioutil.TempDir("", "echo_unixgram")
     if err != nil {
@@ -122,7 +128,10 @@ func TestEchoServerUnixDatagram(t *testing.T) {
     }
 }
 
-// The unixgram have both of types unix and datagram servers
+// The sequence packet socket type is a hybrid that combines the session-oriented connections and reliability
+// of TCP with clearly delineated datagrams of UDP.
+// Discard unrequested data in each datagram. If you read 32 byte of a 50-byte datagram, the operating 
+// system discard the 18 unrequested bytes
 func TestEchoServerUnixPackets(t *testing.T) { 
     dir, err := ioutil.TempDir("", "echo_unixpacket")
     if err != nil {
@@ -153,7 +162,7 @@ func TestEchoServerUnixPackets(t *testing.T) {
     }
     defer func() { _ = conn.Close() }()
 
-    msg := []byte("byte")
+    msg := []byte("ping")
     for i := 0; i < 3; i++ {
         _, err = conn.Write(msg)
         if err != nil {
@@ -172,4 +181,15 @@ func TestEchoServerUnixPackets(t *testing.T) {
             t.Errorf("expected reply %q; actual reply %q", msg, buf[:n])
         }
     }
+    // Discarding unread bytes
+    //buf := make([]byte, 2)
+    //for i := 0; i < 3; i++ {
+        //n, err := conn.Read(buf)
+        //if err != nil {
+            //t.Fatal(err)
+        //}
+        //if !bytes.Equal(msg[:2], buf[:n]) {
+            //t.Errorf("expected reply %q; actual reply %q", msg[:2], buf[:n])
+        //}
+    //}
 }

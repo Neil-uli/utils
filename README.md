@@ -13,5 +13,7 @@ In other terminal use a TFTP client
 tftp 
 connect 127.0.0.1
 binary
-get file.jpegaa
+get file.jpeg
 ```
+
+## [Unix Domain Sockets](unix_domain_socket) 
