@@ -17,3 +17,4 @@ get file.jpeg
 ```
 
 ## [Unix Domain Sockets](unix_domain_socket) 
+Stream based files
