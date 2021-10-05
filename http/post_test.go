@@ -1,19 +1,20 @@
 package main
 
 import (
-    "bytes"
-    //"context"
-    "encoding/json"
-    //"fmt"
-    "io"
-    "io/ioutil"
-    //"mime/multipart"
-    "net/http"
-    "net/http/httptest"
-    //"os"
-    //"path/filepath"
-    "testing"
-    //"time"
+	"bytes"
+	"time"
+	//"context"
+	"encoding/json"
+	//"fmt"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+
+	//"os"
+	//"path/filepath"
+	"testing"
 )
 
 type User struct {
@@ -74,4 +75,19 @@ func TestPostUser(t *testing.T) {
         http.StatusAccepted, resp.StatusCode)
     } 
     _ = resp.Body.Close()
+}
+
+func TestMultiPartPost(t *testing.T) {
+    reqBody := new(bytes.Buffer)
+    w := multipart.NewWriter(reqBody)
+
+    for k, v := range map[string]string {
+        "date": time.Now().Format(time.RFC3339),
+        "description": "Form values with attached files",
+    } {
+        err := w.WriteField(k, v)
+        if err != nil {
+            t.Fatal(err)
+        }
+    }
 }
