@@ -1,18 +1,19 @@
 package main
 
 import (
-    "bytes"
-    "fmt"
-    "os"
-    "path/filepath"
-    "time"
-    "encoding/json"
-    "io"
-    "io/ioutil"
-    "mime/multipart"
-    "net/http"
-    "net/http/httptest"
-    "testing"
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
 )
 
 type User struct {
@@ -111,5 +112,28 @@ func TestMultiPartPost(t *testing.T) {
 
     err := w.Close()
     if err != nil { t.Fatal(err) }
+    
+    // posts the request
+    ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+    defer cancel()
 
+    req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://httpbin.org/post", reqBody)
+    if err != nil { t.Fatal(err) }
+
+    req.Header.Set("Content-Type", w.FormDataContentType())
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil { t.Fatal(err) }
+    defer func() { _ = resp.Body.Close() }()
+
+    b, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    if resp.StatusCode != http.StatusOK {
+        t.Fatalf("expected status %d; actual status %d", http.StatusOK, resp.StatusCode)
+    }
+
+    t.Logf("\n%s", b)
 }
