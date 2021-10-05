@@ -1,20 +1,18 @@
 package main
 
 import (
-	"bytes"
-	"time"
-	//"context"
-	"encoding/json"
-	//"fmt"
-	"io"
-	"io/ioutil"
-	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
-
-	//"os"
-	//"path/filepath"
-	"testing"
+    "bytes"
+    "fmt"
+    "os"
+    "path/filepath"
+    "time"
+    "encoding/json"
+    "io"
+    "io/ioutil"
+    "mime/multipart"
+    "net/http"
+    "net/http/httptest"
+    "testing"
 )
 
 type User struct {
@@ -28,7 +26,7 @@ func handlePostUser(t *testing.T) func(http.ResponseWriter, *http.Request) {
             _, _ = io.Copy(ioutil.Discard, r)
             _ = r.Close()
         }(r.Body)
-        
+
         if r.Method != http.MethodPost {
             http.Error(w, "", http.StatusMethodNotAllowed)
             return
@@ -90,4 +88,28 @@ func TestMultiPartPost(t *testing.T) {
             t.Fatal(err)
         }
     }
+    for i, file := range []string {
+        "./files/hello.txt",
+        "./files/goodbye.txt",
+    } {
+        filePart, err := w.CreateFormFile(fmt.Sprintf("file%d", i+1), filepath.Base(file))
+        if err != nil {
+            t.Fatal(err)
+        }
+
+        f, err := os.Open(file)
+        if err != nil {
+            t.Fatal(err)
+        }
+
+        _, err = io.Copy(filePart, f)
+        _ = f.Close()
+        if err != nil {
+            t.Fatal(err)
+        }
+    }
+
+    err := w.Close()
+    if err != nil { t.Fatal(err) }
+
 }
