@@ -16,12 +16,18 @@ import (
 func TestSimpleHttpServer(t *testing.T) {
   srv := &http.Server{
     Addr: "127.0.0.1:8443",
+    //Handler: http.TimeoutHandler(
+      //handlers.DefaultHandler(), 2*time.Minute, ""),
+      //IdleTimeout: 5 * time.Minute,
+      //ReadHeaderTimeout: time.Minute,
+    //}
+
     Handler: http.TimeoutHandler(
-      handlers.DefaultHandler(), 2*time.Minute, ""),
+      handlers.DefaultMethodsHandler(),
+      2*time.Minute, ""),
       IdleTimeout: 5 * time.Minute,
       ReadHeaderTimeout: time.Minute,
     }
-
     l, err := net.Listen("tcp", srv.Addr)
     if err != nil { t.Fatal(err) }
 
