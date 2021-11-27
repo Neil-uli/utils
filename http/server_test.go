@@ -33,6 +33,7 @@ func TestSimpleHttpServer(t *testing.T) {
 
     go func() {
       // https://github.com/FiloSottile/mkcert/ to get a key pair for dev purposes only
+      // ./mkcert-v1.4.3-linux-amd64 -key-file key.pem -cert-file cert.pem 127.0.0.1
       // for production you can use https://letsencrypt.org/
       err := srv.ServeTLS(l, "cert.pem", "key.pem")
       if err != http.ErrServerClosed {
