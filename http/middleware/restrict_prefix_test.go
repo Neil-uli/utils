@@ -7,27 +7,27 @@ import (
 )
 
 func TestRestrictPrefix(t *testing.T) {
-  handler := http.StripPrefix("/static/", 
-    RestrictPrefix(".", http.FileServer(http.Dir("../files/"))),
-  )
+	handler := http.StripPrefix("/static/",
+		RestrictPrefix(".", http.FileServer(http.Dir("../files/"))),
+	)
 
-  testCases := []struct {
-    path string
-    code int
-  }{
-    {"http://test/static/hello.txt", http.StatusOK},
-    {"http://test/static/.secret", http.StatusNotFound},
-    {"http://test/static/.dir/secret", http.StatusNotFound},
-  }
+	testCases := []struct {
+		path string
+		code int
+	}{
+		{"http://test/static/hello.txt", http.StatusOK},
+		{"http://test/static/.secret", http.StatusNotFound},
+		{"http://test/static/.dir/secret", http.StatusNotFound},
+	}
 
-  for i, c := range testCases {
-    r := httptest.NewRequest(http.MethodGet, c.path, nil)
-    w := httptest.NewRecorder()
-    handler.ServeHTTP(w, r)
+	for i, c := range testCases {
+		r := httptest.NewRequest(http.MethodGet, c.path, nil)
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, r)
 
-    actual := w.Result().StatusCode
-    if c.code != actual {
-      t.Errorf("%d: expected %d; actual %d", i, c.code, actual)
-    }
-  }
+		actual := w.Result().StatusCode
+		if c.code != actual {
+			t.Errorf("%d: expected %d; actual %d", i, c.code, actual)
+		}
+	}
 }

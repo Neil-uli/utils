@@ -104,7 +104,7 @@ func TestEchoServerUnixDatagram(t *testing.T) {
     }
 
     msg := []byte("ping")
-    for i := 0; i < 3; i ++ {
+    for i := 0; i < 3; i++ {
         _, err = client.WriteTo(msg, serverAddr)
         if err != nil {
             t.Fatal(err)
@@ -130,16 +130,16 @@ func TestEchoServerUnixDatagram(t *testing.T) {
 
 // The sequence packet socket type is a hybrid that combines the session-oriented connections and reliability
 // of TCP with clearly delineated datagrams of UDP.
-// Discard unrequested data in each datagram. If you read 32 byte of a 50-byte datagram, the operating 
+// Discard unrequested data in each datagram. If you read 32 byte of a 50-byte datagram, the operating
 // system discard the 18 unrequested bytes
-func TestEchoServerUnixPackets(t *testing.T) { 
+func TestEchoServerUnixPackets(t *testing.T) {
     dir, err := ioutil.TempDir("", "echo_unixpacket")
     if err != nil {
         t.Fatal(err)
     }
     defer func() {
         if eErr := os.RemoveAll(dir); eErr != nil {
-            t.Error(eErr) 
+            t.Error(eErr)
         }
     }()
 
@@ -155,7 +155,7 @@ func TestEchoServerUnixPackets(t *testing.T) {
     if err != nil {
         t.Fatal(err)
     }
-    
+
     conn, err := net.Dial("unixpacket", rAddr.String())
     if err != nil {
         t.Fatal(err)
@@ -166,7 +166,7 @@ func TestEchoServerUnixPackets(t *testing.T) {
     for i := 0; i < 3; i++ {
         _, err = conn.Write(msg)
         if err != nil {
-        t.Fatal(err)
+            t.Fatal(err)
         }
     }
 
@@ -184,12 +184,12 @@ func TestEchoServerUnixPackets(t *testing.T) {
     // Discarding unread bytes
     //buf := make([]byte, 2)
     //for i := 0; i < 3; i++ {
-        //n, err := conn.Read(buf)
-        //if err != nil {
-            //t.Fatal(err)
-        //}
-        //if !bytes.Equal(msg[:2], buf[:n]) {
-            //t.Errorf("expected reply %q; actual reply %q", msg[:2], buf[:n])
-        //}
+    //n, err := conn.Read(buf)
+    //if err != nil {
+    //t.Fatal(err)
+    //}
+    //if !bytes.Equal(msg[:2], buf[:n]) {
+    //t.Errorf("expected reply %q; actual reply %q", msg[:2], buf[:n])
+    //}
     //}
 }
