@@ -78,3 +78,4 @@ get file.jpeg
 Stream based files can manage networks like tcp or udp but with a simple file.
 Sockets for local interprcess communication that allows bidirectional data exhange
 between processes running on the same machinel.
+[]()
